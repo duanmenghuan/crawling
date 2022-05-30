@@ -1,0 +1,58 @@
+
+
+【问题】
+1.MySQL8连接错误: caching_sha2_password 启用原生加密方式即可
+ALTER USER root@localhost IDENTIFIED WITH mysql_native_password BY '123456';
+FLUSH PRIVILEGES;
+
+2.SQL太大导入失败: 修改my.ini然后重启MYSQL即可
+max_allowed_packet=128M
+
+
+【部署】
+1.安装第三方库
+pip install mysql-connector-python cacheout
+
+2 创建数据库并导入数据
+CREATE DATABASE qcwy_job DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_0900_ai_ci;
+use qcwy_job;
+source qcwy_job.sql
+
+3.创建用户表
+CREATE TABLE `user` (
+  `账号` varchar(32) DEFAULT NULL,
+  `密码` varchar(64) DEFAULT NULL,
+  `令牌` varchar(32) DEFAULT NULL,
+  `专业` varchar(32) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 管理员账号: admin admin123
+INSERT INTO `qcwy_job`.`user` (`账号`, `密码`, `令牌`, `专业`) VALUES ('admin', 'admin123', '', '电子商务');
+
+4.改造工作表
+ALTER TABLE `job`
+ADD COLUMN `_最低工资` int DEFAULT '-1',
+ADD COLUMN `_最高工资` int DEFAULT '-1',
+ADD COLUMN `_招聘人数` int DEFAULT '-1',
+ADD COLUMN `_城市` varchar(32) DEFAULT NULL,
+ADD COLUMN `_行业` varchar(32) DEFAULT NULL,
+ADD COLUMN `_职位` varchar(32) DEFAULT NULL,
+ADD COLUMN `_ID` int NOT NULL AUTO_INCREMENT,
+ADD PRIMARY KEY (`_ID`);
+
+ALTER TABLE `job` ADD INDEX `_城市` (`_城市`) USING BTREE ;
+
+
+5.修改数据库配置
+conf.py
+
+6.数据升级脚本
+运行update.py -> 生成update.sql -> navicat执行update.sql
+
+7.启动服务
+app.py
+
+8.测试样例
+账号:admin 密码admin123 专业:电子商务 (提示:首次查询可能比较耗时，再次查询就比较快了)
+
+
